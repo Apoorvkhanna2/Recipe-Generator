@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recipe Finder</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(45deg, #ff7e5f, #feb47b);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      text-align: center;
+      padding: 30px;
+      background-color: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      width: 350px;
+    }
+    h1 {
+      color: #333;
+    }
+    .input-container {
+      margin-bottom: 20px;
+    }
+    #ingredients {
+      width: 80%;
+      padding: 10px;
+      font-size: 1.1rem;
+      border-radius: 5px;
+      border: 2px solid #ddd;
+      margin-right: 10px;
+    }
+    button {
+      padding: 10px 15px;
+      background-color: #ff7e5f;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #feb47b;
+    }
+    #recipe-list {
+      margin-top: 20px;
+    }
+    .recipe {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      margin: 10px 0;
+      background-color: #f8f8f8;
+    }
+    .recipe img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Recipe Finder</h1>
+    <div class="input-container">
+      <input type="text" id="ingredients" placeholder="Enter ingredients separated by commas">
+      <button onclick="findRecipes()">Find Recipes</button>
+    </div>
+    <div id="recipe-list"></div>
+  </div>
+
+  <script>
+    const apiKey = '6611983e6fcd4fd1ab53d4c88ca6ea34'; // Replace with your Spoonacular API Key
+
+    async function findRecipes() {
+      const ingredients = document.getElementById('ingredients').value;
+      if (!ingredients) {
+        alert("Please enter some ingredients.");
+        return;
+      }
+
+      const url = `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${ingredients}&number=5&apiKey=${apiKey}`;
+      
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        const recipeList = document.getElementById('recipe-list');
+        recipeList.innerHTML = '';  // Clear previous results
+
+        if (data.length === 0) {
+          recipeList.innerHTML = "<p>No recipes found. Try different ingredients.</p>";
+          return;
+        }
+
+        data.forEach(recipe => {
+          const recipeItem = document.createElement('div');
+          recipeItem.classList.add('recipe');
+          recipeItem.innerHTML = `
+            <img src="https://spoonacular.com/recipeImages/${recipe.id}-480x360.jpg" alt="${recipe.title}">
+            <h3>${recipe.title}</h3>
+            <p><strong>Used Ingredients:</strong> ${recipe.usedIngredientCount}</p>
+            <a href="https://spoonacular.com/recipes/${recipe.title.replace(/\s+/g, '-').toLowerCase()}-${recipe.id}" target="_blank">View Recipe</a>
+          `;
+          recipeList.appendChild(recipeItem);
+        });
+      } catch (error) {
+        console.error("Error fetching recipes:", error);
+      }
+    }
+  </script>
+</body>
+</html>
